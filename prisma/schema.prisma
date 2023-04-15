@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Geolocation {
+  id                 Int                  @id @default(autoincrement())
+  latitude           Decimal
+  longitude          Decimal
+  Region             Region?
+  City               City?
+  StopPoint          StopPoint?
+  TrajectorySegments TrajectorySegments[]
+}
+
+model Region {
+  id            Int         @id @default(autoincrement())
+  name          String      @unique
+  geolocation   Geolocation @relation(fields: [geolocationId], references: [id])
+  geolocationId Int         @unique
+  City          City[]
+}
+
+model City {
+  id            Int         @id @default(autoincrement())
+  name          String      @unique
+  geolocation   Geolocation @relation(fields: [geolocationId], references: [id])
+  geolocationId Int         @unique
+  region        Region      @relation(fields: [regionId], references: [id])
+  regionId      Int         @unique
+  StopPoint     StopPoint[]
+  Route         Route[]
+}
+
+model StopPoint {
+  id               Int                @id @default(autoincrement())
+  name             String             @unique
+  geolocation      Geolocation        @relation(fields: [geolocationId], references: [id])
+  geolocationId    Int                @unique
+  city             City               @relation(fields: [cityId], references: [id])
+  cityId           Int
+  routes           Route[]
+  routeToStopPoint RouteToStopPoint[]
+  trajectoryStart  Trajectory?        @relation("Trajectory-StopPointStart")
+  trajectoryEnd    Trajectory?        @relation("Trajectory-StopPointEnd")
+}
+
+model Route {
+  id               Int                @id @default(autoincrement())
+  name             String             @unique
+  type             String
+  city             City               @relation(fields: [cityId], references: [id])
+  cityId           Int
+  stopPoints       StopPoint[]
+  routeToStopPoint RouteToStopPoint[]
+}
+
+model RouteToStopPoint {
+  stopPoint   StopPoint @relation(fields: [stopPointId], references: [id])
+  stopPointId Int
+  route       Route     @relation(fields: [routeId], references: [id])
+  routeId     Int
+
+  @@id([stopPointId, routeId])
+}
+
+model Trajectory {
+  id               Int        @id @default(autoincrement())
+  stopPointStart   StopPoint? @relation("Trajectory-StopPointStart", fields: [stopPointStartId], references: [id])
+  stopPointStartId Int        @unique
+  stopPointEnd     StopPoint? @relation("Trajectory-StopPointEnd", fields: [stopPointEndId], references: [id])
+  stopPointEndId   Int        @unique
+
+  TrajectorySegments TrajectorySegments[]
+}
+
+model TrajectorySegments {
+  trajectory    Trajectory  @relation(fields: [trajectoryId], references: [id])
+  trajectoryId  Int
+  geolocation   Geolocation @relation(fields: [geolocationId], references: [id])
+  geolocationId Int
+
+  @@id([trajectoryId, geolocationId])
+}
