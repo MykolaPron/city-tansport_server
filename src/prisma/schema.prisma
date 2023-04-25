@@ -8,32 +8,35 @@ datasource db {
 }
 
 model Geolocation {
-  id                 Int                  @id @default(autoincrement())
-  latitude           Decimal
-  longitude          Decimal
-  Region             Region?
-  City               City?
-  StopPoint          StopPoint?
-  TrajectorySegments TrajectorySegments[]
+  id        Int     @id @default(autoincrement())
+  latitude  Decimal
+  longitude Decimal
+
+  region             Region?
+  city               City?
+  stopPoint          StopPoint?
+  trajectorySegments TrajectorySegments[]
 }
 
 model Region {
-  id            Int         @id @default(autoincrement())
-  name          String      @unique
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
   geolocation   Geolocation @relation(fields: [geolocationId], references: [id])
   geolocationId Int         @unique
-  City          City[]
+  city          City[]
 }
 
 model City {
-  id            Int         @id @default(autoincrement())
-  name          String      @unique
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
   geolocation   Geolocation @relation(fields: [geolocationId], references: [id])
   geolocationId Int         @unique
   region        Region      @relation(fields: [regionId], references: [id])
-  regionId      Int         @unique
-  StopPoint     StopPoint[]
-  Route         Route[]
+  regionId      Int
+  stopPoint     StopPoint[]
+  route         Route[]
 }
 
 model StopPoint {
@@ -85,4 +88,10 @@ model TrajectorySegments {
   geolocationId Int
 
   @@id([trajectoryId, geolocationId])
+  @@unique([trajectoryId, geolocationId])
+}
+
+model TransportType {
+  id   Int    @id @default(autoincrement())
+  name String @unique
 }

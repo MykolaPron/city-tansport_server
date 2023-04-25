@@ -1,0 +1,20 @@
+type Geolocation {
+    id: Int!,
+    latitude: Float!,
+    longitude: Float!,
+    region: Region
+}
+
+input GeolocationInput {
+    latitude: Float,
+    longitude: Float,
+}
+
+type Query {
+    geolocation(id: Int!): Geolocation
+    geolocations: [Geolocation]
+}
+
+type Mutation{
+    createGeolocation(input: GeolocationInput): Geolocation
+}

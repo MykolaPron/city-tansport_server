@@ -1,30 +1,36 @@
-import express, { Express } from 'express';
-import dotenv from 'dotenv';
-import bodyParser from "body-parser";
+import express, {Express, Request, Response, NextFunction} from 'express'
+import dotenv from 'dotenv'
 import cors from "cors"
 
-import {errorHandlerMiddleware} from "./middlewares/errorHandlerMiddleware";
+import {ApolloServer} from "@apollo/server";
+import {expressMiddleware} from "@apollo/server/express4";
+import {resolvers, typeDefs} from "./graphql";
 
-import routes from "./routes";
-import path from "path";
+dotenv.config()
 
-dotenv.config();
+const app: Express = express()
+const port = process.env.PORT
 
-const app: Express = express();
-const port = process.env.PORT;
+const bootstrapServer = async () => {
+    const server = new ApolloServer({
+        typeDefs,
+        resolvers
+    })
+    await server.start()
 
-// Configure Express to use EJS
-app.set( "views", path.join( __dirname, "views" ) );
-app.set( "view engine", "pug" );
+    app.use(cors())
+    app.use(express.json())
+    app.use(express.urlencoded({extended: true}))
+    app.use("/graphql", expressMiddleware(server))
 
-app.use(bodyParser.json({ limit: '2MB' }));
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors());
+    app.get('/', (req:Request, res: Response, next: NextFunction)=>{
+        res.json('Hello')
+    })
 
-app.use('/', routes)
+    app.listen(port, () => {
+        console.log(`⚡️[server]: Server is running at http://localhost:${port}`)
+        console.log(`⚡️[server]: GraphQl is running at http://localhost:${port}/graphql`)
+    });
+}
 
-app.use(errorHandlerMiddleware);
-
-app.listen(port, () => {
-    console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
-});
+bootstrapServer()

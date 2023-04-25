@@ -1,0 +1,19 @@
+type StopPoint {
+    id: Int!,
+    name: String,
+    geolocation: Geolocation
+    city: City!
+}
+
+input StopPointInput {
+    name: String,
+}
+
+type Query {
+    stopPoint(id: Int!): StopPoint
+    stopPoints: [StopPoint]
+}
+
+type Mutation{
+    createStopPoint(input: StopPointInput): StopPoint
+}

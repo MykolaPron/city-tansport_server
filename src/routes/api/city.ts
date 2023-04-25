@@ -1,35 +1,45 @@
 import {Request, Response, Router} from "express";
+import { PrismaClient } from '@prisma/client'
 
 const router = Router()
+const prisma = new PrismaClient()
 
 router.get('/', (req: Request, res: Response) => {
     res.send('Citi Root');
 });
 
-router.get('/list', (req: Request, res: Response) => {
-    res.send({
-        total: 2,
-        data: [
-            {
-                id: 1,
-                name: 'Івано-Франківськ',
-            },
-            {
-                id: 2,
-                name: 'Калуш',
-            },
-        ]
-    });
+router.get('/list', (request: Request, response: Response) => {
+    const allRegions = prisma.city.findMany({
+        select:{
+            id: true,
+            name: true,
+            regionId: true,
+        }
+    }).then(res=>{
+        response.send(res)
+    })
 });
 
-router.get('/:id/info', (req: Request, res: Response) => {
-    res.send({
-        id: 1,
-        name: 'Івано-Франківськ',
-        stopPointsIds:[1,2,3,4,5],
-        routesIds:[1,2,3]
-    });
+router.get('/:id/info', (request: Request, response: Response) => {
+    const allRegions = prisma.city.findUnique({
+        where:{
+            id: Number(request.params.id)
+        },
+        select:{
+            id: true,
+            name: true,
+            regionId: true,
+            geolocation:{
+                select:{
+                    latitude: true,
+                    longitude: true
+                }
+            },
+        }
+    }).then(res=>{
+        console.log(res)
+        response.send(res)
+    })
 });
-
 
 export default router

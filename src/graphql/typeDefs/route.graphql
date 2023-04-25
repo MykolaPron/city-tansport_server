@@ -1,0 +1,17 @@
+type Route {
+    id: Int!,
+    name: String,
+}
+
+input RouteInput {
+    name: String,
+}
+
+type Query {
+    route(id: Int!): Route
+    routes: [Route]
+}
+
+type Mutation{
+    createRoute(input: RouteInput): Route
+}
