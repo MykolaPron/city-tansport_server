@@ -1,11 +1,13 @@
 import {PrismaClient} from '@prisma/client'
 import regions from "../data/regions"
 import cities from "../data/sities"
+import {hasPassword} from "../utils/CryptoHelper";
 
 const prisma = new PrismaClient()
 
 async function main() {
     for (const region of regions) {
+        const i = region.id + 1
         await prisma.region.upsert({
             where: {name: region.name},
             update: {},
@@ -13,8 +15,8 @@ async function main() {
                 name: region.name,
                 geolocation:{
                     create:{
-                        latitude: 1,
-                        longitude: 1
+                        latitude: i,
+                        longitude: i
                     }
                 }
             }
@@ -53,6 +55,17 @@ async function main() {
         })
     }
 
+
+    await prisma.account.upsert({
+        where: {username: 'admin'},
+        update: {},
+        create: {
+            username: 'admin',
+            email: 'admin@city-transport.in.ua',
+            password: await hasPassword('admin'),
+            role: 'ADMIN'
+        }
+    })
 }
 
 main()

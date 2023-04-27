@@ -2,12 +2,15 @@ type Geolocation {
     id: Int!,
     latitude: Float!,
     longitude: Float!,
+
     region: Region
+    city: City
+    stopPoint: StopPoint
 }
 
 input GeolocationInput {
-    latitude: Float,
-    longitude: Float,
+    latitude: Float!,
+    longitude: Float!,
 }
 
 type Query {
@@ -17,4 +20,6 @@ type Query {
 
 type Mutation{
     createGeolocation(input: GeolocationInput): Geolocation
+    updateGeolocation(id: Int!, input: GeolocationInput): Geolocation
+    deleteGeolocation(id: Int!): Geolocation
 }

@@ -12,10 +12,12 @@ model Geolocation {
   latitude  Decimal
   longitude Decimal
 
-  region             Region?
-  city               City?
-  stopPoint          StopPoint?
-  trajectorySegments TrajectorySegments[]
+  region            Region?
+  city              City?
+  stopPoint         StopPoint?
+  trajectorySegment TrajectorySegment?
+
+  @@unique([latitude, longitude])
 }
 
 model Region {
@@ -24,7 +26,8 @@ model Region {
 
   geolocation   Geolocation @relation(fields: [geolocationId], references: [id])
   geolocationId Int         @unique
-  city          City[]
+
+  city City[]
 }
 
 model City {
@@ -35,63 +38,96 @@ model City {
   geolocationId Int         @unique
   region        Region      @relation(fields: [regionId], references: [id])
   regionId      Int
-  stopPoint     StopPoint[]
-  route         Route[]
+
+  stopPoint StopPoint[]
+  route     Route[]
 }
 
 model StopPoint {
-  id               Int                @id @default(autoincrement())
-  name             String             @unique
-  geolocation      Geolocation        @relation(fields: [geolocationId], references: [id])
-  geolocationId    Int                @unique
-  city             City               @relation(fields: [cityId], references: [id])
-  cityId           Int
-  routes           Route[]
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  geolocation   Geolocation @relation(fields: [geolocationId], references: [id])
+  geolocationId Int         @unique
+  city          City        @relation(fields: [cityId], references: [id])
+  cityId        Int
+
+  startTrajectories Trajectory[] @relation("Trajectory-StopPointStart")
+  endTrajectories   Trajectory[] @relation("Trajectory-StopPointEnd")
+
   routeToStopPoint RouteToStopPoint[]
-  trajectoryStart  Trajectory?        @relation("Trajectory-StopPointStart")
-  trajectoryEnd    Trajectory?        @relation("Trajectory-StopPointEnd")
+}
+
+model Trajectory {
+  id Int @id @default(autoincrement())
+
+  stopPointStart   StopPoint? @relation("Trajectory-StopPointStart", fields: [stopPointStartId], references: [id])
+  stopPointStartId Int
+  stopPointEnd     StopPoint? @relation("Trajectory-StopPointEnd", fields: [stopPointEndId], references: [id])
+  stopPointEndId   Int
+
+  TrajectorySegments TrajectorySegment[]
+
+  @@unique([stopPointStartId, stopPointEndId])
+}
+
+model TrajectorySegment {
+  id Int @id @default(autoincrement())
+
+  trajectory   Trajectory @relation(fields: [trajectoryId], references: [id])
+  trajectoryId Int
+
+  geolocation   Geolocation @relation(fields: [geolocationId], references: [id])
+  geolocationId Int         @unique
+
+  previous   TrajectorySegment? @relation("PreviousSegment", fields: [previousId], references: [id])
+  previousId Int?               @unique
+  successor  TrajectorySegment? @relation("PreviousSegment")
+
+  next        TrajectorySegment? @relation("NextSegment", fields: [nextId], references: [id])
+  nextId      Int?               @unique
+  predecessor TrajectorySegment? @relation("NextSegment")
 }
 
 model Route {
-  id               Int                @id @default(autoincrement())
-  name             String             @unique
-  type             String
-  city             City               @relation(fields: [cityId], references: [id])
-  cityId           Int
-  stopPoints       StopPoint[]
+  id   Int           @id @default(autoincrement())
+  name String        @unique
+  type TransportType @relation(fields: [transportTypeId], references: [id])
+
+  city   City @relation(fields: [cityId], references: [id])
+  cityId Int
+
   routeToStopPoint RouteToStopPoint[]
+  transportTypeId  Int
 }
 
 model RouteToStopPoint {
   stopPoint   StopPoint @relation(fields: [stopPointId], references: [id])
   stopPointId Int
-  route       Route     @relation(fields: [routeId], references: [id])
-  routeId     Int
+
+  route   Route @relation(fields: [routeId], references: [id])
+  routeId Int
 
   @@id([stopPointId, routeId])
 }
 
-model Trajectory {
-  id               Int        @id @default(autoincrement())
-  stopPointStart   StopPoint? @relation("Trajectory-StopPointStart", fields: [stopPointStartId], references: [id])
-  stopPointStartId Int        @unique
-  stopPointEnd     StopPoint? @relation("Trajectory-StopPointEnd", fields: [stopPointEndId], references: [id])
-  stopPointEndId   Int        @unique
-
-  TrajectorySegments TrajectorySegments[]
-}
-
-model TrajectorySegments {
-  trajectory    Trajectory  @relation(fields: [trajectoryId], references: [id])
-  trajectoryId  Int
-  geolocation   Geolocation @relation(fields: [geolocationId], references: [id])
-  geolocationId Int
-
-  @@id([trajectoryId, geolocationId])
-  @@unique([trajectoryId, geolocationId])
-}
-
 model TransportType {
-  id   Int    @id @default(autoincrement())
-  name String @unique
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  description String?
+  Route       Route[]
+}
+
+model Account {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  email    String @unique
+  password String
+  role     Role @default(USER)
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  USER
 }

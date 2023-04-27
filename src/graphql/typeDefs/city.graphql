@@ -1,13 +1,14 @@
 type City {
     id: Int!,
     name: String,
+
     geolocation: Geolocation!
     region: Region!
     stopPoints: [StopPoint]
     routes: [Route]
 }
 
-input CityInput {
+input Input {
     name: String,
 }
 
@@ -17,5 +18,5 @@ type Query {
 }
 
 type Mutation{
-    createCity(input: CityInput): City
+    createCity(input: Input): City
 }

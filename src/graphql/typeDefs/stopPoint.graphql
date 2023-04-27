@@ -1,6 +1,7 @@
 type StopPoint {
     id: Int!,
     name: String,
+
     geolocation: Geolocation
     city: City!
 }

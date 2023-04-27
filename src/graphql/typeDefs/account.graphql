@@ -1,0 +1,25 @@
+type Account {
+    username: String!,
+    email: String!,
+    password: String!
+    role: Role!
+}
+
+input AccountInput {
+    username: String!,
+    password: String!
+}
+type Query {
+    account(id: Int!): Account
+    accounts: [Account]
+}
+type Mutation{
+    login: Account
+    validateAccount(input: AccountInput): Account
+}
+
+enum Role {
+    ADMIN
+    MANAGER
+    USER
+}

@@ -6,10 +6,6 @@ interface GetAllArgs {
     info: GraphQLResolveInfo
 }
 
-interface GetByIdArgs extends GetAllArgs {
-    id: number
-}
-
 type BaseServicePropsTypes = {
     model: any,
     includes?: string[],
@@ -23,6 +19,7 @@ class BaseService {
         const prisma = new PrismaClient()
         // @ts-ignore
         this.#model = prisma[props.model]
+
         this.#includes = props.includes ?? []
     }
 
@@ -32,11 +29,34 @@ class BaseService {
         })
     }
 
-    getById({id, info}: GetByIdArgs){
+    getById({id, info}: {id:number} & GetAllArgs){
         return this.#model.findUnique({
             where: {id},
             // include: this.getIncludes(info)
         })
+    }
+
+    create<T>(data:T){
+        return this.#model.create({
+            data: {...data},
+        })
+    }
+
+    updateById<T>({id, data}:{id: number, data: T}){
+        return this.#model.update({
+            where:{id},
+            data: {...data},
+        })
+    }
+
+    deleteById(id:number){
+        return this.#model.delete({
+            where:{id}
+        })
+    }
+
+    get model(){
+        return this.#model
     }
 
     #getIncludes(info: GraphQLResolveInfo){

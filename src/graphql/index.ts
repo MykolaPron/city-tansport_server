@@ -1,31 +1,27 @@
-import {readFileSync} from "fs";
-import path from "path";
-import {regionResolver} from "./resolvers/region.resolver";
-import {geolocationResolver} from "./resolvers/geolocation.resolver";
+import {getTypeDef} from "./utils/getTypeDef";
+import {reduceResolvers} from "./utils/reduceResolvers";
 
-export const geolocationTypes = readFileSync(
-    path.join(__dirname, "./typeDefs/geolocation.graphql"),
-    {
-        encoding: "utf-8"
-    })
-export const regionTypes = readFileSync(
-    path.join(__dirname, "./typeDefs/region.graphql"),
-    {
-        encoding: "utf-8"
-    })
+import accountResolver from "./resolvers/account.resolver";
+import regionResolver from "./resolvers/region.resolver";
+import cityResolver from "./resolvers/city.resolver";
+import stopPointResolver from "./resolvers/stopPoint.resolver";
+import geolocationResolver from "./resolvers/geolocation.resolver";
+import routeResolver from "./resolvers/route.resolver";
 
+export const typeDefs = [
+    'account',
+    'geolocation',
+    'region',
+    'city',
+    'stopPoint',
+    'route',
+].map(getTypeDef).join('')
 
-export const typeDefs = `
-    ${geolocationTypes},
-    ${regionTypes},
-`
-
-export const resolvers = {
-    Query: {
-        ...geolocationResolver.Query,
-        ...regionResolver.Query,
-    },
-    Mutation: {
-        ...regionResolver.Mutation,
-    }
-}
+export const resolvers = reduceResolvers([
+    accountResolver,
+    geolocationResolver,
+    regionResolver,
+    cityResolver,
+    stopPointResolver,
+    routeResolver,
+])

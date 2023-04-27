@@ -86,6 +86,9 @@ CREATE TABLE "_RouteToStopPoint" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Geolocation_latitude_longitude_key" ON "Geolocation"("latitude", "longitude");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Region_name_key" ON "Region"("name");
 
 -- CreateIndex

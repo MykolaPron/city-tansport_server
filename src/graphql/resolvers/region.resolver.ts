@@ -1,7 +1,7 @@
 import {GraphQLResolveInfo} from "graphql/type";
 import regionService from "../services/region.service";
 
-export const regionResolver = {
+export default {
     Query: {
         async regions(_: any, args: Record<string, any>, context: any, info: GraphQLResolveInfo) {
             return await regionService.getAll({info});
@@ -10,7 +10,5 @@ export const regionResolver = {
             return await regionService.getById({id: args.id, info});
         }
     },
-    Mutation: {
-        async createRegion(){}
-    }
+    Mutation: {}
 }

@@ -1,8 +1,6 @@
 import BaseService from "./BaseService";
 
-const regionService = new BaseService({
+export default new BaseService({
     model: 'region',
-    includes:['geolocation']
+    includes: ['geolocation', 'city']
 })
-
-export default regionService

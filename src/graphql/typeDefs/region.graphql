@@ -1,10 +1,12 @@
 type Region {
     id: Int!,
-    name: String,
+    name: String!,
+
     geolocation: Geolocation!
+    cities: [City]
 }
 
-input RegionInput {
+input Input {
     name: String,
 }
 
@@ -14,5 +16,5 @@ type Query {
 }
 
 type Mutation{
-    createRegion(input: RegionInput): Region
+    createRegion(input: Input): Region
 }
